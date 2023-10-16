@@ -22,11 +22,15 @@ function reachableKeys(startingDigit) {
 }
 
 function countPaths(startingDigit,hopCount) {
-	// TODO: given the digit/key to start from and
-	// the number of hops to take, return a count
-	// of all the possible paths that could be
-	// traversed
-	return 0;
+	if (hopCount === 0){
+		return 1;
+	}
+
+	let count = 0;
+
+	reachableKeys(startingDigit).forEach(digit => count += countPaths(digit, hopCount - 1));
+
+	return count;
 }
 
 function listAcyclicPaths(startingDigit) {
