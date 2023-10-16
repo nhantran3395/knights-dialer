@@ -27,21 +27,52 @@ function countPaths(startingDigit,hopCount) {
 	}
 
 	let count = 0;
-
 	reachableKeys(startingDigit).forEach(digit => count += countPaths(digit, hopCount - 1));
 
 	return count;
 }
 
+function memoizeCountPaths (countPaths) {
+	const cache = {};
+
+	return function memoized(startingDigit, hopCount) {
+		const key = `${startingDigit}-${hopCount}`;
+		if (!cache[key]) {
+			cache[key] = countPaths(startingDigit, hopCount);
+		}
+
+		return cache[key];
+	}
+}
+
+countPaths = memoizeCountPaths(countPaths);
+
 function listAcyclicPaths(startingDigit) {
-	// TODO: given the digit/key to start from,
-	// return a list of the distinct acyclic
-	// paths that are possible to traverse
-	//
-	// e.g. [
-	//   [4, 3, 8, 1, 6, 7, 2, 9],
-	//   [4, 3, 8, 1, 6, 0],
-	//   ...
-	// ]
-	return [];
+	const hops = reachableKeys(startingDigit);
+	const paths = [];
+
+	hops.forEach(hop => {
+		const unfinishedPath = [startingDigit, hop];
+		follow(unfinishedPath, paths);
+	})
+
+	return paths;
+}
+
+function follow(unfinishedPath, paths) {
+	const edge = unfinishedPath.slice(-1);
+	const hops = reachableKeys(edge);
+
+	let pathForwardFound = false;
+
+	hops.forEach(hop => {
+		if (!unfinishedPath.includes(hop)){
+			pathForwardFound = true;
+			follow([...unfinishedPath, hop], paths);
+		}
+	})
+
+	if (!pathForwardFound){
+		paths.push(unfinishedPath);
+	}
 }
